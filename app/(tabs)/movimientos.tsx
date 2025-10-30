@@ -3,10 +3,10 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../../components/Header';
 import Movimientos from '../../components/Movimientos';
-import { mockMovimientos } from '../../data/mockData';
+import { useData } from '../../context/DataContext';
 
 export default function MovimientosScreen() {
-    const movimientos = mockMovimientos;
+    const { movimientos } = useData();
 
     return (
         <SafeAreaView className="flex-1 bg-gray-50">

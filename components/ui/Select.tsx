@@ -1,5 +1,3 @@
-// en components/ui/Select.tsx
-
 import { Picker } from '@react-native-picker/picker';
 import React from 'react';
 import { View } from 'react-native';
@@ -18,23 +16,28 @@ interface SelectProps {
 }
 
 const Select = ({ selectedValue, onValueChange, items, placeholder, enabled = true }: SelectProps) => {
-    return (
-        <View className={`border border-gray-200 rounded-xl ${enabled ? 'bg-gray-100' : 'bg-gray-200'}`}>
-            <Picker
-                selectedValue={selectedValue}
-                onValueChange={onValueChange}
-                prompt={placeholder}
-                enabled={enabled} // <-- LA PASAMOS AL PICKER
-            >
-                {placeholder && (
-                    <Picker.Item label={placeholder} value={undefined} style={{ color: 'grey' }} />
-                )}
-                {items.map(item => (
-                    <Picker.Item key={item.value} label={item.label} value={item.value} />
-                ))}
-            </Picker>
-        </View>
-    );
+  const textColor = '#1F2937';
+  const placeholderColor = '#6B7280';
+
+  return (
+    <View className={`border border-gray-200 rounded-xl ${enabled ? 'bg-gray-100' : 'bg-gray-200 opacity-70'}`}>
+      <Picker
+        selectedValue={selectedValue}
+        onValueChange={onValueChange}
+        prompt={placeholder}
+        enabled={enabled}
+        style={{ color: textColor }}
+      >
+        {placeholder && (
+            <Picker.Item label={placeholder} value={undefined} style={{ color: placeholderColor }} />
+        )}
+        {items.map(item => (
+          <Picker.Item key={item.value} label={item.label} value={item.value} />
+        ))}
+      </Picker>
+    </View>
+  );
 };
 
 export { Select };
+

@@ -1,8 +1,9 @@
 import { Href, useRouter } from 'expo-router';
 import { Edit, Plus } from 'lucide-react-native';
 import React from 'react';
-import { Image, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { Animal, Lote } from '../types';
+import ImageWithFallback from './ImageWithFallback';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
@@ -12,7 +13,6 @@ interface DetalleAnimalProps {
     lote?: Lote;
 }
 
-// Un pequeño componente para las filas de detalles
 const DetailRow = ({ label, value }: { label: string; value: string }) => (
     <View className="flex-row justify-between items-center py-4 px-4 border-b border-gray-100 last:border-b-0">
         <Text className="text-gray-600 text-base">{label}</Text>
@@ -46,10 +46,9 @@ export default function DetalleAnimal({ animal, lote }: DetalleAnimalProps) {
 
     return (
         <View className="pb-8">
-            <Image
-                source={{ uri: animal.foto }}
+            <ImageWithFallback
+                src={animal.foto}
                 className="w-full h-64 bg-gray-200"
-                resizeMode="cover"
             />
 
             <View className="p-4">

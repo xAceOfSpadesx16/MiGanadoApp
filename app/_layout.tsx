@@ -1,13 +1,13 @@
-// en app/_layout.tsx
-
 import { Stack } from 'expo-router';
 import React from 'react';
+import { DataProvider } from '../context/DataContext';
 import '../global.css';
 
 export default function RootLayout() {
   return (
-    <Stack
-      screenOptions={{
+    <DataProvider>
+      <Stack
+        screenOptions={{
         headerStyle: { backgroundColor: '#78350f' },
         headerTintColor: '#fff',
         headerTitleStyle: { fontWeight: 'bold' },
@@ -42,5 +42,6 @@ export default function RootLayout() {
         }}
       />
     </Stack>
+  </DataProvider>
   );
 }
