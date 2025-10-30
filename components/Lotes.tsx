@@ -1,12 +1,14 @@
+import { Image } from 'expo-image';
 import { Href, useRouter } from 'expo-router';
 import { ChevronDown, ChevronUp, MapPin, Plus, Users } from 'lucide-react-native';
 import React, { useCallback, useMemo, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { Animal, Lote } from '../types';
-import ImageWithFallback from './ImageWithFallback';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
+
+const placeholder = require('../assets/images/placeholder.webp');
 
 interface LotesProps {
   lotes: Lote[];
@@ -54,9 +56,13 @@ const LoteItem = React.memo(({ lote, animalesEnLote }: { lote: Lote, animalesEnL
                 className="flex-row items-center gap-3 p-2 bg-gray-50 rounded-lg mt-2 active:opacity-70"
                 onPress={() => router.push(`/animal/${animal.id}` as Href)}
               >
-                <ImageWithFallback
-                  src={animal.foto}
+                {/* --- 3. Componente 'Image' de 'expo-image' --- */}
+                <Image
+                  source={animal.foto}
+                  placeholder={placeholder}
                   className="w-12 h-12 rounded-full"
+                  contentFit="cover"
+                  transition={300}
                 />
                 <View className="flex-1">
                   <Text className="font-bold text-amber-900">#{animal.numeroCaravana}</Text>
@@ -119,7 +125,6 @@ export default function Lotes({ lotes, animales }: LotesProps) {
         initialNumToRender={10}
         maxToRenderPerBatch={5}
         windowSize={11}
-
         ListEmptyComponent={() => (
           <View className="items-center py-16">
             <View className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">

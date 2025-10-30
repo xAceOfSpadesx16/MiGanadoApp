@@ -1,12 +1,14 @@
+import { Image } from 'expo-image';
 import { Href, useRouter } from 'expo-router';
 import { Plus, Search } from 'lucide-react-native';
 import React, { useCallback, useMemo, useState } from 'react';
 import { FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Animal } from '../types';
-import ImageWithFallback from './ImageWithFallback';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
+
+const placeholder = require('../assets/images/placeholder.webp');
 
 interface MisAnimalesProps {
   animales: Animal[];
@@ -29,9 +31,12 @@ export default function MisAnimales({ animales }: MisAnimalesProps) {
       onPress={() => router.push(`/animal/${item.id}` as Href)}
     >
       <Card className="p-0 flex-row">
-          <ImageWithFallback
-            src={item.foto}
+          <Image
+            source={item.foto}
+            placeholder={placeholder}
             className="w-24 h-full rounded-l-xl"
+            contentFit="cover"
+            transition={300}
           />
           <View className="flex-1 p-3">
             <View className="flex-row items-start justify-between">
@@ -86,12 +91,10 @@ export default function MisAnimales({ animales }: MisAnimalesProps) {
         keyExtractor={keyExtractor}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 24 }}
-        
         removeClippedSubviews={true}
         initialNumToRender={10}
         maxToRenderPerBatch={5}
         windowSize={11}
-        
         ListEmptyComponent={() => (
           <View className="items-center py-16">
             <View className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
