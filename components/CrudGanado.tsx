@@ -3,7 +3,7 @@ import { Alert, ScrollView, Text, TextInput, View } from 'react-native';
 import { Animal, Lote } from '../types';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
-import DatePicker from './ui/DatePicker'; // Importamos el DatePicker
+import DatePicker from './ui/DatePicker';
 import { Select } from './ui/Select';
 
 interface CrudGanadoProps {
@@ -25,8 +25,8 @@ export default function CrudGanado({ animal, lotes, onSave, onCancel }: CrudGana
     numeroCaravana: '', 
     raza: '', 
     color: '',
-    fechaNacimiento: undefined as Date | undefined, // Cambiado a Date
-    fechaIngreso: undefined as Date | undefined,  // Cambiado a Date
+    fechaNacimiento: undefined as Date | undefined, 
+    fechaIngreso: undefined as Date | undefined,
     loteId: undefined as string | undefined,
     peso: '',
     genero: 'hembra' as 'hembra' | 'macho',
@@ -37,7 +37,6 @@ export default function CrudGanado({ animal, lotes, onSave, onCancel }: CrudGana
     if (animal) {
       setFormData({
         ...animal,
-        // Convertimos los strings de fecha a objetos Date al cargar
         fechaNacimiento: animal.fechaNacimiento ? new Date(animal.fechaNacimiento) : undefined,
         fechaIngreso: animal.fechaIngreso ? new Date(animal.fechaIngreso) : undefined,
         peso: animal.peso?.toString() || '',
@@ -45,13 +44,12 @@ export default function CrudGanado({ animal, lotes, onSave, onCancel }: CrudGana
         foto: animal.foto || '',
       });
     }
-  }, [animal?.id]); // Dependencia estable para evitar bucles
+  }, [animal?.id]);
 
   const handleChange = (field: string, value: string | number | undefined) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Handler separado para los DatePickers
   const handleDateChange = (field: 'fechaNacimiento' | 'fechaIngreso', date: Date) => {
     setFormData((prev) => ({ ...prev, [field]: date }));
   };
@@ -61,18 +59,23 @@ export default function CrudGanado({ animal, lotes, onSave, onCancel }: CrudGana
       Alert.alert('Campos Incompletos', 'Por favor, rellena todos los campos obligatorios (*).');
       return;
     }
+
+    const fotoParaGuardar = (formData.foto && formData.foto.length > 0)
+      ? formData.foto
+      : undefined;
+
     const dataToSave: Omit<Animal, 'id'> = {
         numeroCaravana: formData.numeroCaravana,
         raza: formData.raza,
         color: formData.color,
-        // Convertimos los objetos Date de vuelta a strings YYYY-MM-DD para guardar
         fechaNacimiento: formData.fechaNacimiento ? formData.fechaNacimiento.toISOString().split('T')[0] : '',
         fechaIngreso: formData.fechaIngreso ? formData.fechaIngreso.toISOString().split('T')[0] : '',
         loteId: formData.loteId,
         genero: formData.genero,
-        foto: formData.foto,
+        foto: fotoParaGuardar,
         peso: formData.peso ? parseInt(formData.peso, 10) : undefined,
     };
+    
     onSave(dataToSave);
   };
 
@@ -157,7 +160,7 @@ export default function CrudGanado({ animal, lotes, onSave, onCancel }: CrudGana
                 <TextInput 
                   value={formData.foto} 
                   onChangeText={(v) => handleChange('foto', v)} 
-                  placeholder="https://ejemplo.com/foto.jpg" 
+                  placeholder="Dejar vacío para imagen por defecto" 
                   className="py-3 px-4 text-base bg-gray-100 rounded-xl text-gray-900"
                   placeholderTextColor="#6B7280"
                 />

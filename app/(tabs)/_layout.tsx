@@ -11,7 +11,6 @@ export default function TabLayout() {
         headerStyle: { backgroundColor: '#78350f' },
         headerTintColor: '#fff',
         headerTitleStyle: { fontWeight: 'bold' },
-        animation: 'fade',
       }}>
       <Tabs.Screen
         name="index"
