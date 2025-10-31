@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { Href, useRouter } from 'expo-router';
 import { Plus, Search } from 'lucide-react-native';
-import React, { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Animal } from '../types';
 import { Badge } from './ui/Badge';
@@ -32,7 +32,7 @@ export default function MisAnimales({ animales }: MisAnimalesProps) {
     >
       <Card className="p-0 flex-row">
           <Image
-            source={item.foto}
+            source={item.foto ? item.foto : placeholder}
             placeholder={placeholder}
             className="w-24 h-full rounded-l-xl"
             contentFit="cover"
@@ -50,7 +50,7 @@ export default function MisAnimales({ animales }: MisAnimalesProps) {
             </Text>
             <View className="flex-row gap-4 mt-auto">
               <Text className="text-xs text-gray-500">
-                Nac: {new Date(item.fechaNacimiento).toLocaleDateString()}
+                Nac: {item.fechaNacimiento ? new Date(item.fechaNacimiento).toLocaleDateString() : 'N/A'}
               </Text>
             </View>
           </View>
@@ -91,7 +91,6 @@ export default function MisAnimales({ animales }: MisAnimalesProps) {
         keyExtractor={keyExtractor}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 24 }}
-        removeClippedSubviews={true}
         initialNumToRender={10}
         maxToRenderPerBatch={5}
         windowSize={11}

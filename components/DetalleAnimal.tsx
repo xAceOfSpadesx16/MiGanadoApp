@@ -1,7 +1,6 @@
 import { Image } from 'expo-image';
 import { Href, useRouter } from 'expo-router';
 import { Edit, Plus } from 'lucide-react-native';
-import React from 'react';
 import { Text, View } from 'react-native';
 import { Animal, Lote } from '../types';
 import { Badge } from './ui/Badge';
@@ -26,6 +25,7 @@ export default function DetalleAnimal({ animal, lote }: DetalleAnimalProps) {
   const router = useRouter();
 
   const calcularEdad = (fechaNacimiento: string) => {
+    if (!fechaNacimiento) return 'N/A';
     const nacimiento = new Date(fechaNacimiento);
     const hoy = new Date();
     let edad = hoy.getFullYear() - nacimiento.getFullYear();
@@ -40,16 +40,16 @@ export default function DetalleAnimal({ animal, lote }: DetalleAnimalProps) {
     { label: 'Raza', value: animal.raza },
     { label: 'Color', value: animal.color },
     { label: 'Peso', value: animal.peso ? `${animal.peso} kg` : 'N/A' },
-    { label: 'Nacimiento', value: new Date(animal.fechaNacimiento).toLocaleDateString() },
+    { label: 'Nacimiento', value: animal.fechaNacimiento ? new Date(animal.fechaNacimiento).toLocaleDateString() : 'N/A' },
     { label: 'Edad Aprox.', value: calcularEdad(animal.fechaNacimiento) },
-    { label: 'Ingreso', value: new Date(animal.fechaIngreso).toLocaleDateString() },
+    { label: 'Ingreso', value: animal.fechaIngreso ? new Date(animal.fechaIngreso).toLocaleDateString() : 'N/A' },
     { label: 'Lote Actual', value: lote ? `${lote.numero}` : 'N/A' }
   ];
 
   return (
     <View className="pb-8">
       <Image
-        source={animal.foto}
+        source={animal.foto ? animal.foto : placeholder}
         placeholder={placeholder}
         className="w-full h-64 bg-gray-200"
         contentFit="cover"

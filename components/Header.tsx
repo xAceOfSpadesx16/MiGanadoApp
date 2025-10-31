@@ -2,7 +2,6 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface HeaderProps {
     title: string;
@@ -13,7 +12,7 @@ export default function Header({ title }: HeaderProps) {
     const canGoBack = router.canGoBack();
 
     return (
-        <SafeAreaView className="bg-amber-900" edges={['top']}>
+        <View className="bg-amber-900 pt-9">
             <View className="h-16 flex-row items-center justify-center px-4 relative">
                 {canGoBack && (
                     <TouchableOpacity
@@ -27,6 +26,6 @@ export default function Header({ title }: HeaderProps) {
                     {title}
                 </Text>
             </View>
-        </SafeAreaView>
+        </View>
     );
 }

@@ -76,7 +76,6 @@ export default function Movimientos({ movimientos }: MovimientosProps) {
         keyExtractor={keyExtractor}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 24 }}
-        removeClippedSubviews={true}
         initialNumToRender={10}
         maxToRenderPerBatch={5}
         windowSize={11}

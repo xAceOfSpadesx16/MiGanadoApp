@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { Href, useRouter } from 'expo-router';
 import { ChevronDown, ChevronUp, MapPin, Plus, Users } from 'lucide-react-native';
 import React, { useCallback, useMemo, useState } from 'react';
-import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { SectionList, Text, TouchableOpacity, View } from 'react-native';
 import { Animal, Lote } from '../types';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
@@ -15,15 +15,51 @@ interface LotesProps {
   animales: Animal[];
 }
 
-const LoteItem = React.memo(({ lote, animalesEnLote }: { lote: Lote, animalesEnLote: Animal[] }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+interface LoteSection {
+  lote: Lote; 
+  data: Animal[]; 
+}
+
+const AnimalItem = React.memo(({ animal }: { animal: Animal }) => {
   const router = useRouter();
+  return (
+    <TouchableOpacity
+      className="flex-row items-center gap-3 p-3 bg-gray-50 ml-10 mr-4 mb-2 rounded-lg active:opacity-70"
+      onPress={() => router.push(`/animal/${animal.id}` as Href)}
+    >
+      <Image
+        source={animal.foto ? animal.foto : placeholder}
+        placeholder={placeholder}
+        className="w-12 h-12 rounded-full"
+        contentFit="cover"
+        transition={300}
+      />
+      <View className="flex-1">
+        <Text className="font-bold text-amber-900">#{animal.numeroCaravana}</Text>
+        <Text className="text-sm text-gray-600">{animal.raza}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+});
+
+interface LoteHeaderProps {
+  lote: Lote;
+  animalCount: number;
+  isExpanded: boolean;
+  onToggle: (loteId: string) => void;
+}
+
+const LoteHeader = React.memo(({ lote, animalCount, isExpanded, onToggle }: LoteHeaderProps) => {
+
+  const handleToggle = useCallback(() => {
+    onToggle(lote.id);
+  }, [lote.id, onToggle]);
 
   return (
-    <Card className="mb-3 overflow-hidden p-0">
+    <Card className="mb-2 p-0 overflow-hidden">
       <TouchableOpacity
         className="w-full p-4 flex-row items-center justify-between"
-        onPress={() => setIsExpanded(!isExpanded)}
+        onPress={handleToggle}
       >
         <View className="flex-row items-center gap-3 flex-1">
           <View className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
@@ -33,7 +69,7 @@ const LoteItem = React.memo(({ lote, animalesEnLote }: { lote: Lote, animalesEnL
             <View className="flex-row items-center gap-2">
                 <Text className="text-amber-900 font-bold text-lg">Lote {lote.numero}</Text>
                 <Badge variant="outline" className="bg-blue-50 border-blue-200" textClass="text-blue-900">
-                    {`${animalesEnLote.length} animal${animalesEnLote.length !== 1 ? 'es' : ''}`}
+                    {`${animalCount} animal${animalCount !== 1 ? 'es' : ''}`}
                 </Badge>
             </View>
             <Text className="text-gray-600 text-sm mt-1">{lote.hectareas} hectáreas • {lote.tipoTerreno}</Text>
@@ -45,63 +81,55 @@ const LoteItem = React.memo(({ lote, animalesEnLote }: { lote: Lote, animalesEnL
           <ChevronDown size={24} className="text-gray-500" />
         )}
       </TouchableOpacity>
-
-      {isExpanded && (
-        <View className="px-4 pb-4 pt-0">
-          {lote.descripcion && <Text className="text-gray-600 text-sm mb-3">{lote.descripcion}</Text>}
-          {animalesEnLote.length > 0 ? (
-            animalesEnLote.map((animal) => (
-              <TouchableOpacity
-                key={animal.id}
-                className="flex-row items-center gap-3 p-2 bg-gray-50 rounded-lg mt-2 active:opacity-70"
-                onPress={() => router.push(`/animal/${animal.id}` as Href)}
-              >
-                {/* --- 3. Componente 'Image' de 'expo-image' --- */}
-                <Image
-                  source={animal.foto}
-                  placeholder={placeholder}
-                  className="w-12 h-12 rounded-full"
-                  contentFit="cover"
-                  transition={300}
-                />
-                <View className="flex-1">
-                  <Text className="font-bold text-amber-900">#{animal.numeroCaravana}</Text>
-                  <Text className="text-sm text-gray-600">{animal.raza}</Text>
-                </View>
-              </TouchableOpacity>
-            ))
-          ) : (
-            <View className="items-center py-6">
-              <Users size={32} color="lightgray" />
-              <Text className="text-sm text-gray-500 mt-2">No hay animales en este lote</Text>
-            </View>
-          )}
-        </View>
+      {isExpanded && lote.descripcion && (
+         <Text className="text-gray-600 text-sm px-4 pb-2 -mt-1">{lote.descripcion}</Text>
       )}
     </Card>
   );
 });
 
+
 export default function Lotes({ lotes, animales }: LotesProps) {
   const router = useRouter();
-  
-  const animalesPorLote = useMemo(() => {
+  const [expandedLotes, setExpandedLotes] = useState<Record<string, boolean>>({});
+  const toggleLote = useCallback((loteId: string) => {
+    setExpandedLotes(prev => ({
+      ...prev,
+      [loteId]: !prev[loteId],
+    }));
+  }, []);
+
+  const { sections, animalesPorLote } = useMemo(() => {
     const map = new Map<string, Animal[]>();
     lotes.forEach(lote => map.set(lote.id, []));
     animales.forEach(animal => {
-      map.get(animal.loteId)?.push(animal);
+      if(animal.loteId && map.has(animal.loteId)) {
+        map.get(animal.loteId)?.push(animal);
+      }
     });
-    return map;
-  }, [lotes, animales]);
 
-  const renderItem = useCallback(({ item }: { item: Lote }) => (
-    <LoteItem
-      lote={item}
-      animalesEnLote={animalesPorLote.get(item.id) || []}
+    const sectionData: LoteSection[] = lotes.map(lote => ({
+      lote: lote, 
+      data: expandedLotes[lote.id] ? (map.get(lote.id) || []) : [], 
+    }));
+    
+    return { sections: sectionData, animalesPorLote: map };
+  }, [lotes, animales, expandedLotes]);
+
+  const renderSectionHeader = useCallback(({ section }: { section: LoteSection }) => (
+    <LoteHeader
+      lote={section.lote}
+      animalCount={(animalesPorLote.get(section.lote.id) || []).length}
+      isExpanded={!!expandedLotes[section.lote.id]}
+      onToggle={toggleLote}
     />
-  ), [animalesPorLote]);
+  ), [animalesPorLote, expandedLotes, toggleLote]);
 
-  const keyExtractor = (item: Lote) => item.id;
+  const renderItem = useCallback(({ item }: { item: Animal }) => (
+    <AnimalItem animal={item} />
+  ), []);
+
+  const keyExtractor = (item: Animal) => item.id;
 
   return (
     <View className="p-4 flex-1">
@@ -115,13 +143,13 @@ export default function Lotes({ lotes, animales }: LotesProps) {
             </View>
       </Button>
 
-      <FlatList
-        data={lotes}
+      <SectionList
+        sections={sections}
         renderItem={renderItem}
+        renderSectionHeader={renderSectionHeader}
         keyExtractor={keyExtractor}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 24 }}
-        removeClippedSubviews={true}
         initialNumToRender={10}
         maxToRenderPerBatch={5}
         windowSize={11}
@@ -133,6 +161,17 @@ export default function Lotes({ lotes, animales }: LotesProps) {
             <Text className="text-gray-500">No hay lotes registrados.</Text>
           </View>
         )}
+        renderSectionFooter={({section}) => {
+            if (expandedLotes[section.lote.id] && section.data.length === 0 && (animalesPorLote.get(section.lote.id) || []).length === 0) {
+                return (
+                    <View className="items-center py-6 bg-gray-50 ml-10 mr-4 mb-2 rounded-lg -mt-2">
+                      <Users size={32} color="lightgray" />
+                      <Text className="text-sm text-gray-500 mt-2">No hay animales en este lote</Text>
+                    </View>
+                );
+            }
+            return null;
+        }}
       />
     </View>
   );

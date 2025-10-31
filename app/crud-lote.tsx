@@ -1,7 +1,6 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useCallback, useMemo } from 'react';
-import { Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useCallback, useMemo } from 'react';
+import { Alert, View } from 'react-native';
 import CrudLotes from '../components/CrudLotes';
 import { useData } from '../context/DataContext';
 import { Lote } from '../types';
@@ -10,22 +9,26 @@ export default function CrudLoteScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ loteId?: string }>();
   
-  const { lotes, createLote, updateLote } = useData();
+  const { lotes } = useData();
 
   const loteToEdit = useMemo(() => (
     params.loteId ? lotes.find(l => l.id === params.loteId) : undefined
   ), [params.loteId, lotes]);
 
   const handleSave = useCallback((loteData: Omit<Lote, 'id'>) => {
-    if (loteToEdit) {
-      updateLote({ ...loteData, id: loteToEdit.id });
-      Alert.alert('Éxito', 'Lote actualizado correctamente.');
-    } else {
-      createLote(loteData);
-      Alert.alert('Éxito', 'Lote creado correctamente.');
-    }
-    router.back();
-  }, [router, loteToEdit, createLote, updateLote]);
+    
+    const actionText = loteToEdit ? 'actualizaría' : 'crearía';
+    const dataToShow = loteToEdit ? { ...loteData, id: loteToEdit.id } : loteData;
+
+    Alert.alert(
+      `Simulación (${actionText})`,
+      JSON.stringify(dataToShow, null, 2),
+      [
+        { text: 'OK', onPress: () => router.back() }
+      ]
+    );
+
+  }, [router, loteToEdit]);
 
   const handleCancel = useCallback(() => {
     router.back();
@@ -40,7 +43,7 @@ export default function CrudLoteScreen() {
   }), [loteToEdit]);
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50">
       <Stack.Screen 
         options={screenOptions}
       />
@@ -49,6 +52,6 @@ export default function CrudLoteScreen() {
         onSave={handleSave}
         onCancel={handleCancel}
       />
-    </SafeAreaView>
+    </View>
   );
 }

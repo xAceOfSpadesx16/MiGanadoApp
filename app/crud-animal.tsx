@@ -1,7 +1,6 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useCallback, useMemo } from 'react';
-import { Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useCallback, useMemo } from 'react';
+import { Alert, View } from 'react-native';
 import CrudGanado from '../components/CrudGanado';
 import { useData } from '../context/DataContext';
 import { Animal } from '../types';
@@ -10,22 +9,26 @@ export default function CrudAnimalScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ animalId?: string }>();
   
-  const { lotes, animales, createAnimal, updateAnimal } = useData();
+  const { lotes, animales } = useData();
 
   const animalToEdit = useMemo(() => {
     return params.animalId ? animales.find(a => a.id === params.animalId) : undefined;
   }, [params.animalId, animales]);
 
   const handleSave = useCallback((animalData: Omit<Animal, 'id'>) => {
-    if (animalToEdit) {
-      updateAnimal({ ...animalData, id: animalToEdit.id });
-      Alert.alert('Éxito', 'Animal actualizado correctamente.');
-    } else {
-      createAnimal(animalData);
-      Alert.alert('Éxito', 'Animal creado correctamente.');
-    }
-    router.back();
-  }, [router, animalToEdit, createAnimal, updateAnimal]);
+    
+    const actionText = animalToEdit ? 'actualizaría' : 'crearía';
+    const dataToShow = animalToEdit ? { ...animalData, id: animalToEdit.id } : animalData;
+
+    Alert.alert(
+      `Simulación (${actionText})`,
+      JSON.stringify(dataToShow, null, 2),
+      [
+        { text: 'OK', onPress: () => router.back() }
+      ]
+    );
+
+  }, [router, animalToEdit]);
 
   const handleCancel = useCallback(() => {
     router.back();
@@ -40,7 +43,7 @@ export default function CrudAnimalScreen() {
   }), [animalToEdit]);
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50">
       <Stack.Screen 
         options={screenOptions}
       />
@@ -50,6 +53,6 @@ export default function CrudAnimalScreen() {
         onSave={handleSave}
         onCancel={handleCancel}
       />
-    </SafeAreaView>
+    </View>
   );
 }

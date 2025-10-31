@@ -1,7 +1,6 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useCallback, useMemo } from 'react';
-import { Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useCallback, useMemo } from 'react';
+import { Alert, View } from 'react-native';
 import CrudMovimientos from '../components/CrudMovimientos';
 import { useData } from '../context/DataContext';
 import { Movimiento } from '../types';
@@ -14,29 +13,35 @@ export default function CrudMovimientoScreen() {
     animales, 
     lotes, 
     movimientos, 
-    createMovimiento, 
-    updateMovimiento 
   } = useData();
 
   const movimientoToEdit = useMemo(() => (
     params.movimientoId ? movimientos.find(m => m.id === params.movimientoId) : undefined
   ), [params.movimientoId, movimientos]);
 
+
   const handleSave = useCallback((movimientoData: Omit<Movimiento, 'id'>) => {
-    if (movimientoToEdit) {
-      updateMovimiento({ ...movimientoData, id: movimientoToEdit.id });
-      Alert.alert('Éxito', 'Movimiento actualizado correctamente.');
-    } else {
-      createMovimiento(movimientoData);
-      Alert.alert('Éxito', 'Movimiento creado correctamente.');
-    }
     
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/movimientos');
-    }
-  }, [router, movimientoToEdit, createMovimiento, updateMovimiento]);
+    const actionText = movimientoToEdit ? 'actualizaría' : 'crearía';
+    const dataToShow = movimientoToEdit ? { ...movimientoData, id: movimientoToEdit.id } : movimientoData;
+
+    const goBack = () => {
+       if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace('/movimientos');
+      }
+    };
+
+    Alert.alert(
+      `Simulación (${actionText})`,
+      JSON.stringify(dataToShow, null, 2),
+      [
+        { text: 'OK', onPress: goBack }
+      ]
+    );
+
+  }, [router, movimientoToEdit]);
 
   const handleCancel = useCallback(() => {
     router.back();
@@ -52,7 +57,7 @@ export default function CrudMovimientoScreen() {
   }), [movimientoToEdit]);
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50">
       <Stack.Screen 
         options={screenOptions}
       />
@@ -64,6 +69,6 @@ export default function CrudMovimientoScreen() {
         onSave={handleSave}
         onCancel={handleCancel}
       />
-    </SafeAreaView>
+    </View>
   );
 }
